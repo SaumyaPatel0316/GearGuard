@@ -10,14 +10,25 @@ const connectDB = async () => {
     }
 
     const conn = await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      maxPoolSize: 10,
+      minPoolSize: 5,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      retryWrites: true,
+      w: 'majority',
     });
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    console.log(`Database: ${conn.connection.name}`);
+    return conn;
   } catch (error) {
     console.error(`MongoDB connection error: ${error.message}`);
-    process.exit(1);
+    console.error('Retrying connection in 5 seconds...');
+    
+    // Retry connection after 5 seconds
+    setTimeout(() => {
+      connectDB();
+    }, 5000);
   }
 };
 
