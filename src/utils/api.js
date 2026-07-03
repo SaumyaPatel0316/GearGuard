@@ -1,10 +1,5 @@
 import apiAxios from './axios';
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('mainteno_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
 const handleAxios = async (promise) => {
   try {
     const res = await promise;
@@ -19,42 +14,42 @@ export const api = {
   auth: {
     register: (data) => handleAxios(apiAxios.post('/auth/register', data)),
     login: (data) => handleAxios(apiAxios.post('/auth/login', data)),
-    me: () => handleAxios(apiAxios.get('/auth/me', { headers: getAuthHeaders() }))
+    me: () => handleAxios(apiAxios.get('/auth/me'))
   },
   teams: {
-    getAll: () => handleAxios(apiAxios.get('/teams', { headers: getAuthHeaders() })),
-    getById: (id) => handleAxios(apiAxios.get(`/teams/${id}`, { headers: getAuthHeaders() })),
-    create: (data) => handleAxios(apiAxios.post('/teams', data, { headers: { ...getAuthHeaders() } })),
-    update: (id, data) => handleAxios(apiAxios.put(`/teams/${id}`, data, { headers: { ...getAuthHeaders() } })),
-    delete: (id) => handleAxios(apiAxios.delete(`/teams/${id}`, { headers: getAuthHeaders() }))
+    getAll: () => handleAxios(apiAxios.get('/teams')),
+    getById: (id) => handleAxios(apiAxios.get(`/teams/${id}`)),
+    create: (data) => handleAxios(apiAxios.post('/teams', data)),
+    update: (id, data) => handleAxios(apiAxios.put(`/teams/${id}`, data)),
+    delete: (id) => handleAxios(apiAxios.delete(`/teams/${id}`))
   },
   equipment: {
-    getAll: () => handleAxios(apiAxios.get('/equipment', { headers: getAuthHeaders() })),
-    getById: (id) => handleAxios(apiAxios.get(`/equipment/${id}`, { headers: getAuthHeaders() })),
-    getRequests: (id) => handleAxios(apiAxios.get(`/equipment/${id}/requests`, { headers: getAuthHeaders() })),
-    getRequestsCount: (id) => handleAxios(apiAxios.get(`/equipment/${id}/requests/count`, { headers: getAuthHeaders() })),
-    create: (data) => handleAxios(apiAxios.post('/equipment', data, { headers: { ...getAuthHeaders() } })),
-    update: (id, data) => handleAxios(apiAxios.put(`/equipment/${id}`, data, { headers: { ...getAuthHeaders() } })),
-    delete: (id) => handleAxios(apiAxios.delete(`/equipment/${id}`, { headers: getAuthHeaders() }))
+    getAll: () => handleAxios(apiAxios.get('/equipment')),
+    getById: (id) => handleAxios(apiAxios.get(`/equipment/${id}`)),
+    getRequests: (id) => handleAxios(apiAxios.get(`/equipment/${id}/requests`)),
+    getRequestsCount: (id) => handleAxios(apiAxios.get(`/equipment/${id}/requests/count`)),
+    create: (data) => handleAxios(apiAxios.post('/equipment', data)),
+    update: (id, data) => handleAxios(apiAxios.put(`/equipment/${id}`, data)),
+    delete: (id) => handleAxios(apiAxios.delete(`/equipment/${id}`))
   },
   requests: {
-    getAll: () => handleAxios(apiAxios.get('/requests', { headers: getAuthHeaders() })),
-    getManager: () => handleAxios(apiAxios.get('/requests/manager', { headers: getAuthHeaders() })),
-    getTechnician: () => handleAxios(apiAxios.get('/requests/technician', { headers: getAuthHeaders() })),
-    getTechnicians: () => handleAxios(apiAxios.get('/requests/technicians', { headers: getAuthHeaders() })),
-    getCalendar: () => handleAxios(apiAxios.get('/requests/calendar', { headers: getAuthHeaders() })),
-    getById: (id) => handleAxios(apiAxios.get(`/requests/${id}`, { headers: getAuthHeaders() })),
-    create: (data) => handleAxios(apiAxios.post('/requests', data, { headers: { ...getAuthHeaders() } })),
-    update: (id, data) => handleAxios(apiAxios.put(`/requests/${id}`, data, { headers: { ...getAuthHeaders() } })),
-    assignManager: (id, technicianId) => handleAxios(apiAxios.patch(`/requests/${id}/assign-manager`, { technicianId }, { headers: { ...getAuthHeaders() } })),
-    assignSelf: (id) => handleAxios(apiAxios.patch(`/requests/${id}/assign-self`, {}, { headers: { ...getAuthHeaders() } })),
-    start: (id) => handleAxios(apiAxios.patch(`/requests/${id}/start`, {}, { headers: { ...getAuthHeaders() } })),
-    complete: (id, hoursSpent) => handleAxios(apiAxios.patch(`/requests/${id}/complete`, { hoursSpent }, { headers: { ...getAuthHeaders() } })),
-    scrap: (id, hoursSpent) => handleAxios(apiAxios.patch(`/requests/${id}/scrap`, { hoursSpent }, { headers: { ...getAuthHeaders() } })),
-    delete: (id) => handleAxios(apiAxios.delete(`/requests/${id}`, { headers: getAuthHeaders() }))
+    getAll: () => handleAxios(apiAxios.get('/requests')),
+    getManager: () => handleAxios(apiAxios.get('/requests/manager')),
+    getTechnician: () => handleAxios(apiAxios.get('/requests/technician')),
+    getTechnicians: () => handleAxios(apiAxios.get('/requests/technicians')),
+    getCalendar: () => handleAxios(apiAxios.get('/requests/calendar')),
+    getById: (id) => handleAxios(apiAxios.get(`/requests/${id}`)),
+    create: (data) => handleAxios(apiAxios.post('/requests', data)),
+    update: (id, data) => handleAxios(apiAxios.put(`/requests/${id}`, data)),
+    assignManager: (id, technicianId) => handleAxios(apiAxios.patch(`/requests/${id}/assign-manager`, { technicianId })),
+    assignSelf: (id) => handleAxios(apiAxios.patch(`/requests/${id}/assign-self`)),
+    start: (id) => handleAxios(apiAxios.patch(`/requests/${id}/start`)),
+    complete: (id, hoursSpent) => handleAxios(apiAxios.patch(`/requests/${id}/complete`, { hoursSpent })),
+    scrap: (id, hoursSpent) => handleAxios(apiAxios.patch(`/requests/${id}/scrap`, { hoursSpent })),
+    delete: (id) => handleAxios(apiAxios.delete(`/requests/${id}`))
   },
   users: {
-    me: () => handleAxios(apiAxios.get('/users/me', { headers: getAuthHeaders() })),
-    updateMe: (data) => handleAxios(apiAxios.put('/users/me', data, { headers: { ...getAuthHeaders() } }))
+    me: () => handleAxios(apiAxios.get('/users/me')),
+    updateMe: (data) => handleAxios(apiAxios.put('/users/me', data))
   }
 };
