@@ -1,0 +1,67 @@
+import { Calendar, LayoutGrid, LogOut, Package, Users, Home, BarChart3, User as UserIcon } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { authStore } from '../utils/auth';
+
+const Sidebar = () => {
+  const navigate = useNavigate();
+  const user = authStore.getUser();
+  const userRole = user?.role?.toUpperCase() || 'USER';
+
+  const allMenuItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: Home, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/requests', label: 'Requests', icon: LayoutGrid, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/calendar', label: 'Calendar', icon: Calendar, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/equipment', label: 'Equipment', icon: Package, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/reports', label: 'Reports', icon: BarChart3, roles: ['TECHNICIAN', 'MANAGER'] },
+    { path: '/profile', label: 'Profile', icon: UserIcon, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/teams', label: 'Teams', icon: Users, roles: ['TECHNICIAN', 'MANAGER'] }
+  ];
+
+  const menuItems = allMenuItems.filter(item => item.roles.includes(userRole));
+
+  const onLogout = () => {
+    authStore.clear();
+    navigate('/auth/login', { replace: true });
+  };
+
+  return (
+    <div className="w-64 bg-white dark:bg-slate-950 shadow-lg border-r border-slate-200 dark:border-slate-800 flex flex-col">
+      <div className="p-5 flex-1">
+        <nav className="space-y-1.5">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-sm ${
+                    isActive
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md font-medium'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 font-normal'
+                  }`
+                }
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="p-5 border-t border-slate-200 dark:border-slate-800">
+        <button
+          type="button"
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 text-sm font-medium"
+        >
+          <LogOut size={18} />
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;
