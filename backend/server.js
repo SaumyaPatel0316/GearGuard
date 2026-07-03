@@ -17,8 +17,8 @@ connectDB();
 app.set('trust proxy', 1);
 
 const allowedOrigins = [
-  'https://gearguard-frontend-673d.onrender.com', // Current Render frontend
-  'https://gearguard.vercel.app', // Replace with your actual Vercel domain
+  'https://gearguard-frontend-673d.onrender.com',
+  'https://gear-guard.vercel.app', // Your actual Vercel frontend domain
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
