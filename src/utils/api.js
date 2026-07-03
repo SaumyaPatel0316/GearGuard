@@ -1,126 +1,60 @@
-const API_BASE_URL = 'https://gearguard-backend-5fil.onrender.com/api';
+import apiAxios from './axios';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('mainteno_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-const handleResponse = async (response) => {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(error.message);
+const handleAxios = async (promise) => {
+  try {
+    const res = await promise;
+    return res.data;
+  } catch (err) {
+    const message = err?.response?.data?.message || err.message || 'An error occurred';
+    throw new Error(message);
   }
-  return response.json();
 };
 
 export const api = {
   auth: {
-    register: (data) =>
-      fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      }).then(handleResponse),
-    login: (data) =>
-      fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      }).then(handleResponse),
-    me: () =>
-      fetch(`${API_BASE_URL}/auth/me`, {
-        headers: { ...getAuthHeaders() }
-      }).then(handleResponse)
+    register: (data) => handleAxios(apiAxios.post('/auth/register', data)),
+    login: (data) => handleAxios(apiAxios.post('/auth/login', data)),
+    me: () => handleAxios(apiAxios.get('/auth/me', { headers: getAuthHeaders() }))
   },
   teams: {
-    getAll: () => fetch(`${API_BASE_URL}/teams`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    getById: (id) => fetch(`${API_BASE_URL}/teams/${id}`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    create: (data) => fetch(`${API_BASE_URL}/teams`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(data)
-    }).then(handleResponse),
-    update: (id, data) => fetch(`${API_BASE_URL}/teams/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(data)
-    }).then(handleResponse),
-    delete: (id) => fetch(`${API_BASE_URL}/teams/${id}`, {
-      method: 'DELETE',
-      headers: { ...getAuthHeaders() }
-    }).then(handleResponse)
+    getAll: () => handleAxios(apiAxios.get('/teams', { headers: getAuthHeaders() })),
+    getById: (id) => handleAxios(apiAxios.get(`/teams/${id}`, { headers: getAuthHeaders() })),
+    create: (data) => handleAxios(apiAxios.post('/teams', data, { headers: { ...getAuthHeaders() } })),
+    update: (id, data) => handleAxios(apiAxios.put(`/teams/${id}`, data, { headers: { ...getAuthHeaders() } })),
+    delete: (id) => handleAxios(apiAxios.delete(`/teams/${id}`, { headers: getAuthHeaders() }))
   },
   equipment: {
-    getAll: () => fetch(`${API_BASE_URL}/equipment`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    getById: (id) => fetch(`${API_BASE_URL}/equipment/${id}`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    getRequests: (id) => fetch(`${API_BASE_URL}/equipment/${id}/requests`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    getRequestsCount: (id) => fetch(`${API_BASE_URL}/equipment/${id}/requests/count`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    create: (data) => fetch(`${API_BASE_URL}/equipment`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(data)
-    }).then(handleResponse),
-    update: (id, data) => fetch(`${API_BASE_URL}/equipment/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(data)
-    }).then(handleResponse),
-    delete: (id) => fetch(`${API_BASE_URL}/equipment/${id}`, {
-      method: 'DELETE',
-      headers: { ...getAuthHeaders() }
-    }).then(handleResponse)
+    getAll: () => handleAxios(apiAxios.get('/equipment', { headers: getAuthHeaders() })),
+    getById: (id) => handleAxios(apiAxios.get(`/equipment/${id}`, { headers: getAuthHeaders() })),
+    getRequests: (id) => handleAxios(apiAxios.get(`/equipment/${id}/requests`, { headers: getAuthHeaders() })),
+    getRequestsCount: (id) => handleAxios(apiAxios.get(`/equipment/${id}/requests/count`, { headers: getAuthHeaders() })),
+    create: (data) => handleAxios(apiAxios.post('/equipment', data, { headers: { ...getAuthHeaders() } })),
+    update: (id, data) => handleAxios(apiAxios.put(`/equipment/${id}`, data, { headers: { ...getAuthHeaders() } })),
+    delete: (id) => handleAxios(apiAxios.delete(`/equipment/${id}`, { headers: getAuthHeaders() }))
   },
   requests: {
-    getAll: () => fetch(`${API_BASE_URL}/requests`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    getManager: () => fetch(`${API_BASE_URL}/requests/manager`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    getTechnician: () => fetch(`${API_BASE_URL}/requests/technician`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    getTechnicians: () => fetch(`${API_BASE_URL}/requests/technicians`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    getCalendar: () => fetch(`${API_BASE_URL}/requests/calendar`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    getById: (id) => fetch(`${API_BASE_URL}/requests/${id}`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    create: (data) => fetch(`${API_BASE_URL}/requests`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(data)
-    }).then(handleResponse),
-    update: (id, data) => fetch(`${API_BASE_URL}/requests/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(data)
-    }).then(handleResponse),
-    assignManager: (id, technicianId) => fetch(`${API_BASE_URL}/requests/${id}/assign-manager`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify({ technicianId })
-    }).then(handleResponse),
-    assignSelf: (id) => fetch(`${API_BASE_URL}/requests/${id}/assign-self`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }
-    }).then(handleResponse),
-    start: (id) => fetch(`${API_BASE_URL}/requests/${id}/start`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }
-    }).then(handleResponse),
-    complete: (id, hoursSpent) => fetch(`${API_BASE_URL}/requests/${id}/complete`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify({ hoursSpent })
-    }).then(handleResponse),
-    scrap: (id, hoursSpent) => fetch(`${API_BASE_URL}/requests/${id}/scrap`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }
-      ,body: JSON.stringify({ hoursSpent })
-    }).then(handleResponse),
-    delete: (id) => fetch(`${API_BASE_URL}/requests/${id}`, {
-      method: 'DELETE',
-      headers: { ...getAuthHeaders() }
-    }).then(handleResponse)
-  }
-  ,users: {
-    me: () => fetch(`${API_BASE_URL}/users/me`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
-    updateMe: (data) => fetch(`${API_BASE_URL}/users/me`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify(data)
-    }).then(handleResponse),
+    getAll: () => handleAxios(apiAxios.get('/requests', { headers: getAuthHeaders() })),
+    getManager: () => handleAxios(apiAxios.get('/requests/manager', { headers: getAuthHeaders() })),
+    getTechnician: () => handleAxios(apiAxios.get('/requests/technician', { headers: getAuthHeaders() })),
+    getTechnicians: () => handleAxios(apiAxios.get('/requests/technicians', { headers: getAuthHeaders() })),
+    getCalendar: () => handleAxios(apiAxios.get('/requests/calendar', { headers: getAuthHeaders() })),
+    getById: (id) => handleAxios(apiAxios.get(`/requests/${id}`, { headers: getAuthHeaders() })),
+    create: (data) => handleAxios(apiAxios.post('/requests', data, { headers: { ...getAuthHeaders() } })),
+    update: (id, data) => handleAxios(apiAxios.put(`/requests/${id}`, data, { headers: { ...getAuthHeaders() } })),
+    assignManager: (id, technicianId) => handleAxios(apiAxios.patch(`/requests/${id}/assign-manager`, { technicianId }, { headers: { ...getAuthHeaders() } })),
+    assignSelf: (id) => handleAxios(apiAxios.patch(`/requests/${id}/assign-self`, {}, { headers: { ...getAuthHeaders() } })),
+    start: (id) => handleAxios(apiAxios.patch(`/requests/${id}/start`, {}, { headers: { ...getAuthHeaders() } })),
+    complete: (id, hoursSpent) => handleAxios(apiAxios.patch(`/requests/${id}/complete`, { hoursSpent }, { headers: { ...getAuthHeaders() } })),
+    scrap: (id, hoursSpent) => handleAxios(apiAxios.patch(`/requests/${id}/scrap`, { hoursSpent }, { headers: { ...getAuthHeaders() } })),
+    delete: (id) => handleAxios(apiAxios.delete(`/requests/${id}`, { headers: getAuthHeaders() }))
+  },
+  users: {
+    me: () => handleAxios(apiAxios.get('/users/me', { headers: getAuthHeaders() })),
+    updateMe: (data) => handleAxios(apiAxios.put('/users/me', data, { headers: { ...getAuthHeaders() } }))
   }
 };
