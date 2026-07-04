@@ -36,13 +36,31 @@ const userSchema = new mongoose.Schema(
     },
     passwordHash: {
       type: String,
-      required: true,
+      required: false,
     },
     role: {
       type: String,
-      enum: ['USER', 'MANAGER', 'TECHNICIAN'],
+      enum: ['USER', 'MANAGER', 'TECHNICIAN', 'ADMIN'],
       default: 'USER',
       required: true,
+    },
+    firebaseUid: {
+      type: String,
+      trim: true,
+      sparse: true,
+    },
+    provider: {
+      type: String,
+      enum: ['google', 'microsoft', 'email', 'local'],
+      default: 'local',
+    },
+    photo: {
+      type: String,
+      trim: true,
+    },
+    isApproved: {
+      type: Boolean,
+      default: false,
     },
     teamId: {
       type: mongoose.Schema.Types.ObjectId,

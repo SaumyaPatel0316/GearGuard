@@ -7,6 +7,7 @@ import userRoutes from './routes/userRoutes.js';
 import teamRoutes from './routes/teamRoutes.js';
 import equipmentRoutes from './routes/equipmentRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 dotenv.config();
 
@@ -17,12 +18,18 @@ connectDB();
 app.set('trust proxy', 1);
 
 const allowedOrigins = [
+  // Production domains
   'https://gearguard-frontend-673d.onrender.com',
-  'https://gear-guard.vercel.app', // Your actual Vercel frontend domain
+  'https://gear-guard.vercel.app',
+  // Local development
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
+  'http://localhost:5174',
+  'http://127.0.0.1:5174',
+  'http://localhost:8080',
+  'http://127.0.0.1:8080',
 ];
 
 const corsOptions = {
@@ -46,6 +53,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/equipment', equipmentRoutes);
 app.use('/api/requests', requestRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'GearGuard API Server' });

@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
+import { verifyFirebaseAndLinkUser } from '../middleware/verifyFirebase.js';
 
 const router = express.Router();
 
@@ -99,6 +100,29 @@ router.post(
 
 router.get('/me', requireAuth, async (req, res) => {
   return res.json({ user: req.user });
+});
+
+// Firebase Login Route
+router.post('/firebase-login', verifyFirebaseAndLinkUser, async (req, res) => {
+  try {
+    const user = req.user;
+    const token = signToken(user);
+
+    return res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        photo: user.photo,
+        department: user.department,
+      },
+    });
+  } catch (error) {
+    console.error('Firebase login error:', error);
+    return res.status(500).json({ message: 'Login failed' });
+  }
 });
 
 export default router;

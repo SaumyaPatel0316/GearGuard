@@ -245,7 +245,178 @@ Ensure **compliance, traceability, and transparency**.
 
 - **Backend:** Node.js, Express.js
 - **Frontend:** React.js, JavaScript
-- **Database:** MongoDB(Local Database)
+- **Database:** MongoDB (Local Database)
+- **Authentication:** Firebase (Google, Microsoft, Email Link)
+
+---
+
+## 🚀 Local Development Setup
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- MongoDB (local installation or MongoDB Atlas)
+- Firebase account (for authentication)
+
+### Step 1: Clone and Install Dependencies
+
+```bash
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies
+cd ..
+npm install
+```
+
+### Step 2: Set Up Environment Variables
+
+**Backend (backend/.env):**
+```bash
+# Copy the template
+cp backend/.env.template backend/.env
+
+# Edit backend/.env with your values:
+MONGODB_URI=mongodb://localhost:27017/gearguard
+PORT=5000
+JWT_SECRET=your_secure_jwt_secret_here
+NODE_ENV=development
+JWT_EXPIRES_IN=7d
+FIREBASE_SERVICE_ACCOUNT_KEY='{"type":"service_account",...}'
+```
+
+**Frontend (.env):**
+```bash
+# Copy the template
+cp .env.template .env
+
+# Edit .env with your Firebase config:
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+```
+
+### Step 3: Set Up Firebase Authentication
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project
+3. Enable Authentication:
+   - Go to Authentication > Sign-in method
+   - Enable Google sign-in
+   - Enable Microsoft sign-in
+   - Enable Email/Password (for email link)
+4. Get Firebase config from Project Settings > General > Your Apps
+5. Get Service Account Key from Project Settings > Service Accounts > Generate New Private Key
+6. Add these values to your environment files
+
+### Step 4: Start MongoDB
+
+**Using local MongoDB:**
+```bash
+# Start MongoDB service (Windows)
+net start MongoDB
+
+# Or use MongoDB Compass to connect
+```
+
+**Using MongoDB Atlas:**
+```bash
+# Update MONGODB_URI in backend/.env with your Atlas connection string
+```
+
+### Step 5: Seed Admin User
+
+```bash
+cd backend
+npm run seed:admin
+```
+
+This creates an admin user with email: `admin@gearguard.local`
+
+### Step 6: Start the Application
+
+**Terminal 1 - Backend:**
+```bash
+cd backend
+npm run dev
+```
+Backend will run on http://localhost:5000
+
+**Terminal 2 - Frontend:**
+```bash
+npm run dev
+```
+Frontend will run on http://localhost:5173
+
+### Step 7: Access the Application
+
+1. Open http://localhost:5173 in your browser
+2. Navigate to http://localhost:5173/auth/login
+3. Sign in with Google/Microsoft using the admin email: `admin@gearguard.local`
+4. Access admin dashboard at http://localhost:5173/admin
+
+### Authentication Flow
+
+The system uses an **invite-only model**:
+- Only users invited by an administrator can access the system
+- Admin can invite users via the Admin Dashboard
+- Users sign in with Firebase (Google/Microsoft/Email)
+- Backend verifies Firebase token and checks if user is approved
+
+### Troubleshooting
+
+**MongoDB Connection Error:**
+- Ensure MongoDB is running
+- Check MONGODB_URI in backend/.env
+
+**Firebase Authentication Error:**
+- Verify Firebase config in .env files
+- Check Firebase Console that authentication providers are enabled
+- Ensure service account key is correctly formatted
+
+**CORS Error:**
+- Backend already allows localhost origins (3000, 5173, 5174, 8080)
+- Check backend is running on correct port
+
+**"Account not approved" Error:**
+- User must be invited by admin first
+- Use admin dashboard to invite users
+- Or seed admin user with `npm run seed:admin`
+
+---
+
+## 🚀 Deployment
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+### Quick Deployment Overview
+
+**Backend (Render):**
+- Deploy backend to Render.com
+- Set environment variables: MongoDB URI, JWT Secret, Firebase Service Account Key
+- Backend will run on port 5000 (Render sets this automatically)
+
+**Frontend (Vercel):**
+- Deploy frontend to Vercel
+- Set environment variables: Firebase config (VITE_FIREBASE_*)
+- Frontend will be served from Vercel CDN
+
+**Required Environment Variables:**
+
+Backend:
+- `MONGODB_URI` - MongoDB Atlas connection string
+- `JWT_SECRET` - Secure random string
+- `FIREBASE_SERVICE_ACCOUNT_KEY` - Firebase service account JSON (single-line)
+
+Frontend:
+- `VITE_FIREBASE_API_KEY` - Firebase API key
+- `VITE_FIREBASE_PROJECT_ID` - Firebase project ID
+- `VITE_FIREBASE_AUTH_DOMAIN` - Firebase auth domain
+- Other Firebase config variables
 
 ---
 
