@@ -1,6 +1,5 @@
 import admin from 'firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
-import { credential } from 'firebase-admin';
 import User from '../models/User.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -30,7 +29,7 @@ const initializeFirebaseAdmin = () => {
       } catch (e) {
         console.log('Initializing new Firebase Admin app from secret file');
         admin.initializeApp({
-          credential: credential.cert(serviceAccount),
+          credential: admin.credential.cert(serviceAccount),
         });
       }
       firebaseAdminInitialized = true;
@@ -57,7 +56,7 @@ const initializeFirebaseAdmin = () => {
         } catch (e) {
           console.log('Initializing new Firebase Admin app');
           admin.initializeApp({
-            credential: credential.cert(serviceAccount),
+            credential: admin.credential.cert(serviceAccount),
           });
         }
         firebaseAdminInitialized = true;
@@ -81,7 +80,7 @@ const initializeFirebaseAdmin = () => {
     } catch (e) {
       console.log('Initializing new Firebase Admin app');
       admin.initializeApp({
-        credential: credential.cert(serviceAccount),
+        credential: admin.credential.cert(serviceAccount),
       });
     }
     firebaseAdminInitialized = true;
