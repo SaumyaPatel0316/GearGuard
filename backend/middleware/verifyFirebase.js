@@ -13,26 +13,34 @@ let firebaseAdminInitialized = false;
 
 const initializeFirebaseAdmin = () => {
   if (firebaseAdminInitialized) return;
-  
+
   try {
+    console.log('Initializing Firebase Admin...');
     // For deployment (Render/Vercel), prioritize environment variable
     if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-      if (!admin.apps.length) {
-        admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
-        });
+      console.log('Using FIREBASE_SERVICE_ACCOUNT_KEY from environment');
+      try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        if (!admin.apps.length) {
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+          });
+        }
+        firebaseAdminInitialized = true;
+        console.log('Firebase Admin initialized from environment variable (deployment mode)');
+        return;
+      } catch (parseError) {
+        console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:', parseError.message);
+        throw parseError;
       }
-      firebaseAdminInitialized = true;
-      console.log('Firebase Admin initialized from environment variable (deployment mode)');
-      return;
     }
 
     // Fallback to file-based loading for local development
+    console.log('Falling back to file-based loading');
     const serviceAccountPath = join(__dirname, '../../serviceAccountKey.json');
     const serviceAccountBuffer = readFileSync(serviceAccountPath);
     const serviceAccount = JSON.parse(serviceAccountBuffer.toString());
-    
+
     if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
@@ -41,29 +49,42 @@ const initializeFirebaseAdmin = () => {
     firebaseAdminInitialized = true;
     console.log('Firebase Admin initialized from serviceAccountKey.json (local development)');
   } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
+    console.error('Firebase Admin initialization error:', error.message);
+    console.error('Error details:', error);
   }
 };
 
 export const verifyFirebaseToken = async (req, res, next) => {
   try {
+    console.log('Starting Firebase token verification...');
     initializeFirebaseAdmin();
 
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('No token provided or invalid format');
       return res.status(401).json({ message: 'No token provided' });
     }
 
     const token = authHeader.split(' ')[1];
+    console.log('Token received, length:', token.length);
+
+    if (!admin.apps.length) {
+      console.error('Firebase Admin not initialized');
+      return res.status(500).json({ message: 'Firebase Admin not initialized' });
+    }
+
     const auth = getAuth();
+    console.log('Verifying token with Firebase...');
     const decoded = await auth.verifyIdToken(token);
+    console.log('Token verified successfully for user:', decoded.email);
 
     // Attach Firebase user data to request
     req.firebaseUser = decoded;
     next();
   } catch (error) {
-    console.error('Firebase token verification error:', error);
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    console.error('Firebase token verification error:', error.message);
+    console.error('Error code:', error.code);
+    return res.status(401).json({ message: 'Invalid or expired token', error: error.message });
   }
 };
 
