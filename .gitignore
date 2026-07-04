@@ -22,3 +22,6 @@ dist-ssr
 *.sw?
 .env
 serviceAccountKey.json
+firebase-key-singleline.txt
+convert-key.js
+convert-key.cjs
