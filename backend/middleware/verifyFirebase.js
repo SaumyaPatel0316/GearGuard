@@ -21,7 +21,12 @@ const initializeFirebaseAdmin = () => {
       console.log('Using FIREBASE_SERVICE_ACCOUNT_KEY from environment');
       try {
         const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-        if (!admin.apps.length) {
+        // Try to get existing app, if it fails, initialize new one
+        try {
+          admin.app();
+          console.log('Firebase Admin app already exists');
+        } catch (e) {
+          console.log('Initializing new Firebase Admin app');
           admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
           });
@@ -41,7 +46,12 @@ const initializeFirebaseAdmin = () => {
     const serviceAccountBuffer = readFileSync(serviceAccountPath);
     const serviceAccount = JSON.parse(serviceAccountBuffer.toString());
 
-    if (!admin.apps.length) {
+    // Try to get existing app, if it fails, initialize new one
+    try {
+      admin.app();
+      console.log('Firebase Admin app already exists');
+    } catch (e) {
+      console.log('Initializing new Firebase Admin app');
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
@@ -68,7 +78,10 @@ export const verifyFirebaseToken = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     console.log('Token received, length:', token.length);
 
-    if (!admin.apps.length) {
+    // Check if Firebase app is initialized
+    try {
+      admin.app();
+    } catch (e) {
       console.error('Firebase Admin not initialized');
       return res.status(500).json({ message: 'Firebase Admin not initialized' });
     }
