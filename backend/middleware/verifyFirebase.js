@@ -17,7 +17,30 @@ const initializeFirebaseAdmin = () => {
 
   try {
     console.log('Initializing Firebase Admin...');
-    // For deployment (Render/Vercel), prioritize environment variable
+
+    // Priority 1: Render Secret Files (deployment)
+    const secretFilePath = '/etc/secrets/serviceAccountKey.json';
+    try {
+      const secretBuffer = readFileSync(secretFilePath);
+      const serviceAccount = JSON.parse(secretBuffer.toString());
+      console.log('Using Firebase Admin from Render Secret File');
+      try {
+        admin.app();
+        console.log('Firebase Admin app already exists');
+      } catch (e) {
+        console.log('Initializing new Firebase Admin app from secret file');
+        admin.initializeApp({
+          credential: credential.cert(serviceAccount),
+        });
+      }
+      firebaseAdminInitialized = true;
+      console.log('Firebase Admin initialized from Render Secret File');
+      return;
+    } catch (secretError) {
+      console.log('Secret file not found, trying other methods');
+    }
+
+    // Priority 2: Environment variable (deployment)
     if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
       console.log('Using FIREBASE_SERVICE_ACCOUNT_KEY from environment');
       try {
@@ -28,7 +51,6 @@ const initializeFirebaseAdmin = () => {
           keyString = keyString.slice(1, -1);
         }
         const serviceAccount = JSON.parse(keyString);
-        // Try to get existing app, if it fails, initialize new one
         try {
           admin.app();
           console.log('Firebase Admin app already exists');
@@ -47,13 +69,12 @@ const initializeFirebaseAdmin = () => {
       }
     }
 
-    // Fallback to file-based loading for local development
-    console.log('Falling back to file-based loading');
+    // Priority 3: File-based loading for local development
+    console.log('Falling back to file-based loading for local development');
     const serviceAccountPath = join(__dirname, '../../serviceAccountKey.json');
     const serviceAccountBuffer = readFileSync(serviceAccountPath);
     const serviceAccount = JSON.parse(serviceAccountBuffer.toString());
 
-    // Try to get existing app, if it fails, initialize new one
     try {
       admin.app();
       console.log('Firebase Admin app already exists');
