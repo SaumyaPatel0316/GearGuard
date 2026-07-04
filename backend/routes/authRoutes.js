@@ -33,7 +33,7 @@ router.post(
     body('name').isString().trim().notEmpty(),
     body('email').isEmail().normalizeEmail(),
     body('password').isString().isLength({ min: 6 }),
-    body('role').isIn(['USER', 'MANAGER', 'TECHNICIAN']),
+    body('department').optional().isString().trim(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -42,7 +42,7 @@ router.post(
     }
 
     try {
-      const { name, email, password, role } = req.body;
+      const { name, email, password, department } = req.body;
 
       const existing = await User.findOne({ email });
       if (existing) {
@@ -50,13 +50,21 @@ router.post(
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
-      const user = await User.create({ name, email, passwordHash, role });
+      const user = await User.create({
+        name,
+        email,
+        passwordHash,
+        role: 'USER', // Default role for new registrations
+        department: department || null,
+        isApproved: false, // Requires admin approval
+        active: true,
+      });
 
       const token = signToken(user);
 
       return res.status(201).json({
         token,
-        user: { id: user._id, name: user.name, email: user.email, role: user.role },
+        user: { id: user._id, name: user.name, email: user.email, role: user.role, department: user.department },
       });
     } catch (error) {
       console.error('Auth register error:', error);

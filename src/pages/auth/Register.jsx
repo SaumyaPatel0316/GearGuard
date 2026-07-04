@@ -5,18 +5,18 @@ import { authStore, getDefaultAppPathForRole } from '../../utils/auth';
 
 export default function Register() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'USER' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', department: '' });
   const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const errors = useMemo(() => {
     const e = {};
-    if (!form.name.trim()) e.name = 'Name is required';
+    if (!form.name.trim()) e.name = 'Full name is required';
     if (!form.email.trim()) e.email = 'Email is required';
     if (!form.password.trim()) e.password = 'Password is required';
     else if (form.password.trim().length < 6) e.password = 'Password must be at least 6 characters';
-    if (!form.role) e.role = 'Role is required';
+    if (!form.department.trim()) e.department = 'Department is required';
     return e;
   }, [form]);
 
@@ -26,7 +26,7 @@ export default function Register() {
   const onSubmit = async (ev) => {
     ev.preventDefault();
     setError('');
-    setTouched({ name: true, email: true, password: true, role: true });
+    setTouched({ name: true, email: true, password: true, department: true });
     if (Object.keys(errors).length > 0) return;
 
     try {
@@ -35,7 +35,8 @@ export default function Register() {
         name: form.name,
         email: form.email,
         password: form.password,
-        role: form.role,
+        role: 'USER', // Default role, admin can change later
+        department: form.department,
       });
       authStore.setToken(result.token);
       authStore.setUser(result.user);
@@ -50,8 +51,8 @@ export default function Register() {
   return (
     <div className="mx-auto max-w-md py-10">
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/40 backdrop-blur shadow-soft p-8">
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Get Started</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Create your account.</p>
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Join GearGuard</h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Register to manage equipment and requests.</p>
 
         {error ? (
           <div className="mt-4 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/70 dark:bg-rose-950/30 p-3 text-sm text-rose-700 dark:text-rose-200">
@@ -67,7 +68,7 @@ export default function Register() {
               onChange={onChange('name')}
               onBlur={onBlur('name')}
               className="mt-2 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/40 px-4 py-3 text-slate-900 dark:text-slate-100"
-              placeholder="Your name"
+              placeholder="John Doe"
             />
             {touched.name && errors.name ? <div className="mt-1 text-sm text-rose-600">{errors.name}</div> : null}
           </div>
@@ -79,9 +80,28 @@ export default function Register() {
               onChange={onChange('email')}
               onBlur={onBlur('email')}
               className="mt-2 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/40 px-4 py-3 text-slate-900 dark:text-slate-100"
-              placeholder="you@example.com"
+              placeholder="john@company.com"
             />
             {touched.email && errors.email ? <div className="mt-1 text-sm text-rose-600">{errors.email}</div> : null}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Department</label>
+            <select
+              value={form.department}
+              onChange={onChange('department')}
+              onBlur={onBlur('department')}
+              className="mt-2 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/40 px-4 py-3 text-slate-900 dark:text-slate-100"
+            >
+              <option value="">Select department</option>
+              <option value="Operations">Operations</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Engineering">Engineering</option>
+              <option value="IT">IT</option>
+              <option value="HR">HR</option>
+              <option value="Finance">Finance</option>
+            </select>
+            {touched.department && errors.department ? <div className="mt-1 text-sm text-rose-600">{errors.department}</div> : null}
           </div>
 
           <div>
@@ -99,24 +119,6 @@ export default function Register() {
             ) : null}
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Role</label>
-            <select
-              value={form.role}
-              onChange={onChange('role')}
-              onBlur={onBlur('role')}
-              className="mt-2 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/40 px-4 py-3 text-slate-900 dark:text-slate-100"
-            >
-              <option value="USER">User (Employee)</option>
-              <option value="MANAGER">Manager</option>
-              <option value="TECHNICIAN">Technician</option>
-            </select>
-            {touched.role && errors.role ? <div className="mt-1 text-sm text-rose-600">{errors.role}</div> : null}
-            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              Note: Role selection is enabled for this demo.
-            </div>
-          </div>
-
           <button
             type="submit"
             disabled={submitting}
@@ -125,6 +127,10 @@ export default function Register() {
             {submitting ? 'Creating…' : 'Create Account'}
           </button>
         </form>
+
+        <div className="mt-4 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50/70 dark:bg-blue-950/30 p-3 text-xs text-blue-700 dark:text-blue-200">
+          <strong>Note:</strong> Your account will require admin approval before you can access the system. You'll be notified once approved.
+        </div>
 
         <div className="mt-6 text-sm text-slate-600 dark:text-slate-300">
           Already have an account?{' '}
