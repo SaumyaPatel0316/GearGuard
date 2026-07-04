@@ -20,7 +20,13 @@ const initializeFirebaseAdmin = () => {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
       console.log('Using FIREBASE_SERVICE_ACCOUNT_KEY from environment');
       try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        // Remove surrounding quotes if present (common mistake in environment variables)
+        let keyString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+        if ((keyString.startsWith('"') && keyString.endsWith('"')) ||
+            (keyString.startsWith("'") && keyString.endsWith("'"))) {
+          keyString = keyString.slice(1, -1);
+        }
+        const serviceAccount = JSON.parse(keyString);
         // Try to get existing app, if it fails, initialize new one
         try {
           admin.app();
