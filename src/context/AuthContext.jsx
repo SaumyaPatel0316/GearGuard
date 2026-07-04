@@ -2,6 +2,9 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { auth, signOut as firebaseSignOut } from '../firebase/firebase';
 import axios from 'axios';
 
+// API base URL - use Render backend in production, localhost in development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -28,7 +31,7 @@ export const AuthProvider = ({ children }) => {
 
       const token = await firebaseUser.getIdToken();
 
-      const response = await axios.post('/api/auth/firebase-login', 
+      const response = await axios.post(`${API_BASE_URL}/api/auth/firebase-login`,
         { provider },
         {
           headers: {
